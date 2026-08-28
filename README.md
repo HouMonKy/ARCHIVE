@@ -135,7 +135,7 @@ npm run dev
 
 ## 配置 AI
 
-推荐直接编辑 `.env.local`，这也是面试官使用 Visitor 时最简单的方式：
+推荐直接编辑 `.env.local`：
 
 ```dotenv
 # 图片识别：Kimi K2.6
