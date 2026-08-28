@@ -1,0 +1,359 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 用户：Owner（本人，全权限）与 DEMO（面试沙箱，隔离数据+每日限额）
+model User {
+  id          String   @id
+  displayName String
+  role        String   @default("OWNER") // OWNER | DEMO
+  locale      String   @default("zh-CN")
+  timezone    String   @default("Asia/Shanghai")
+  createdAt   DateTime @default(now())
+
+  preferences     UserPreference[]
+  assets          CollectionAsset[]
+  intents         UserProductIntent[]
+  recognitionJobs RecognitionJob[]
+  reports         InsightReport[]
+  feedbacks       InsightFeedback[]
+  sessions        Session[]
+}
+
+// 显式偏好与 AI 推断分层：source 区分 USER / AI_INFERRED
+model UserPreference {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  kind      String // CATEGORY | GRADE | ROUTE | MONTHLY_BUDGET_MINOR
+  value     String
+  source    String   @default("USER")
+  evidence  String?
+  updatedAt DateTime
+
+  @@unique([userId, kind])
+}
+
+// 版本化商品目录事实（Bandai/LEGO 官网来源记录）
+model CatalogProduct {
+  id              String   @id
+  brand           String
+  category        String
+  line            String? // UC / AC / CE 等（可空：不再硬编码 LEGO 为 SUPERCAR）
+  grade           String // MG / RG / HG / PG / MGEX / TECHNIC ...
+  canonicalName   String
+  // 中文标准名（Bandai 官方商品名中文转写 / LEGO 中国官网名）；null = 未获得
+  nameZh          String?
+  // 型号/套装编号（机体型号如 ZGMF-X20A；LEGO 套装编号如 42172）
+  modelNumber     String?
+  // 比例（1/100、1/144 等；识别结果可编辑字段）
+  scale           String?
+  // 系列/主题（可空）：Bandai 作品（機動戦士ガンダム 逆襲のシャア）或 LEGO 主题（Marvel/Harry Potter…）；
+  // 入库时保存 Kimi 已提取 series，无法确认留空——绝不猜
+  series          String?
+  // 官网商品编号（Bandai 品番如 2583176）
+  officialProductCode String?
+  // 中文名来源（如 bandai-zh-dict-v1 / lego-zh-cn-curated-v1）
+  nameZhSource    String?
+  // 官网商品页（如 https://manual.bandai-hobby.net/menus/detail/646）
+  officialPageUrl String?
+  // 官网原图 URL（仅官方域名/CDN；绝不写入第三方图片）
+  officialImageUrl String?
+  releaseYear     Int?
+  source          String
+  catalogVersion  String
+  imageSourcePage String?
+  imageSourceUrl  String?
+  imageFetchedAt  DateTime?
+  rightsBasis     String?
+  // 本地缓存文件名（private-assets/product-images/ 下；HOSTED 不缓存）
+  imageCacheFile  String?
+  // 官网原图 SHA-256（缓存字节指纹）
+  imageSha256     String?
+  // 官网图抓取状态：PENDING | OK | FAILED（不得把 HTML/403/占位图写成 OK）
+  imageStatus     String?
+
+  releaseEvents ReleaseEvent[]
+  assets        CollectionAsset[]
+  intents       UserProductIntent[]
+  insights      Insight[]
+}
+
+// AI Provider 设置（Owner 通过 /settings 配置；Key 以 AES-256-GCM 密文存储，绝不回显）
+model AiProviderConfig {
+  provider   String   @id // moonshot | deepseek
+  model      String
+  apiKeyEnc  String // 密文（本机主密钥加密；格式 v1.<iv>.<tag>.<cipher>）
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// 服务端会话：签名 Cookie（sessionId.hmac）+ 可撤销的数据库记录
+model Session {
+  id        String    @id // 32 字节随机 hex
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+  userAgent String?
+
+  @@index([userId])
+}
+
+// AI 用量与成本台账（月度预算熔断依据；不含图片、完整提示词、Cookie、密钥）
+model AiUsageLog {
+  id               String   @id @default(cuid())
+  provider         String // moonshot | deepseek
+  model            String
+  kind             String // RECOGNITION | REPORT | EVAL
+  requestId        String?
+  latencyMs        Int
+  promptTokens     Int?
+  completionTokens Int?
+  costMinor        Int // 估算人民币成本（分）
+  createdAt        DateTime @default(now())
+
+  @@index([provider, createdAt])
+}
+
+// 服务端持久化密钥（如 SESSION_SECRET 未设置时的会话签名密钥回退）
+model AppSecret {
+  key   String @id
+  value String
+}
+
+// 目录同步游标（可恢复：断点续跑；来源审计：状态与错误留痕）
+model CatalogSyncCursor {
+  id          String   @id // 如 "bandai" / "lego"
+  brand       String
+  cursor      String @default("") // 列表页码或条目偏移
+  status      String   @default("RUNNING") // RUNNING | DONE | ERROR
+  itemsSynced Int      @default(0)
+  lastError   String?
+  updatedAt   DateTime @updatedAt
+}
+
+// 一件已取得的物理实体；同 SKU 可多件
+model CollectionAsset {
+  id                String    @id @default(cuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id])
+  catalogProductId  String?
+  product           CatalogProduct? @relation(fields: [catalogProductId], references: [id])
+  customName        String?
+  customBrand       String?
+  recognitionJobId  String?   @unique
+  recognitionJob    RecognitionJob? @relation(fields: [recognitionJobId], references: [id])
+  recognitionCorrected Boolean?
+  dispositionState  String // ACTIVE | SOLD | GIFTED | RETURNED
+  archivedAt        DateTime?
+  buildState        String // UNOPENED | OPENED | BUILDING | COMPLETED | NOT_APPLICABLE
+  progress          Int       @default(0)
+  purchasePriceMinor Int?
+  currency          String?
+  purchasedAt       DateTime?
+  completedAt       DateTime?
+  note              String?
+  confirmedAt       DateTime
+  idempotencyKey    String?   @unique
+  lastActivityAt    DateTime
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  insights Insight[]
+  cover    AssetCover?
+  photos   AssetPhoto[]
+}
+
+// 愿望 / 预订，不计入实体数、成本与完成率
+model UserProductIntent {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id])
+  catalogProductId  String
+  product           CatalogProduct @relation(fields: [catalogProductId], references: [id])
+  state             String // WISHLIST | PREORDERED
+  expectedPriceMinor Int?
+  createdAt         DateTime @default(now())
+
+  @@unique([userId, catalogProductId, state])
+}
+
+// 识别任务审计：Provider、版本、结果与失败原因
+model RecognitionJob {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  state           String // RUNNING | SUCCEEDED | FAILED | CONFIRMED
+  provider        String
+  providerVersion String
+  fileSha256      String
+  fileName        String?
+  fileSize        Int?
+  resultJson      String?
+  // Kimi 结构化提取快照（品牌/名称/系列/等级/型号；无目录匹配时用于预填自定义藏品）
+  extractionJson  String?
+  errorCode       String?
+  confirmedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  // 识别时上传的封面（EXIF 修正 + 压缩后；HOSTED 模式为 null）
+  cover           AssetCover? @relation(fields: [coverId], references: [id])
+  coverId         String?  @unique
+
+  asset           CollectionAsset?
+}
+
+// 藏品照片（一对多）：详情页「藏品照片」区——识别图（AssetCover，入柜识别图）首位永久保留，
+// 用户可追加本人拍摄的多张照片（每件 ≤MAX_ASSET_PHOTOS 张，单张 ≤10MB）。
+// 仅资产所属用户可读写（服务端逐请求校验 userId）；文件存本机私有目录，库内只存元数据/SHA。
+model AssetPhoto {
+  id        String   @id @default(cuid())
+  userId    String
+  assetId   String
+  asset     CollectionAsset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  fileName  String   @unique
+  mimeType  String
+  sizeBytes Int
+  width     Int?
+  height    Int?
+  sha256    String
+  createdAt DateTime @default(now())
+
+  @@index([assetId, createdAt])
+}
+
+// 实体封面：手机拍照上传（EXIF 方向修正 + 压缩后存本机 private-assets/user-covers/）。
+// 待确认（assetId=null）超过 24 小时由清理任务删除；确认后绑定 Asset 成为默认封面。
+// HOSTED 模式不落盘（占位图兜底）。原图/Base64 不进数据库（仅存 SHA-256 与尺寸）。
+model AssetCover {
+  id          String    @id @default(cuid())
+  userId      String
+  fileName    String    @unique
+  mimeType    String
+  sizeBytes   Int
+  width       Int?
+  height      Int?
+  sha256      String
+  createdAt   DateTime  @default(now())
+  confirmedAt DateTime?
+  assetId     String?   @unique
+  asset       CollectionAsset? @relation(fields: [assetId], references: [id])
+  job         RecognitionJob?
+
+  @@index([userId, createdAt])
+}
+
+// 新品事件（周报候选来源，版本化）
+model ReleaseEvent {
+  id               String   @id
+  catalogProductId String
+  product          CatalogProduct @relation(fields: [catalogProductId], references: [id])
+  title            String
+  announcedAt      DateTime
+  sourceUrl        String
+  sourceName       String
+  priceMinor       Int?
+  datasetVersion   String
+}
+
+// 一期周报（同一用户同一周期唯一）
+model InsightReport {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  periodStart      DateTime
+  periodEnd        DateTime
+  snapshotVersion  String
+  generatorVersion String
+  status           String   @default("PUBLISHED")
+  // 路线完整度/缺口快照（JSON，确定性计算结果；旧报告为 null）
+  routeSummaryJson String?
+  // AI 润色提供方（如 deepseek/deepseek-v4-flash）；确定性模板时为 null
+  polishedBy       String?
+  createdAt        DateTime @default(now())
+
+  insights         Insight[]
+
+  @@unique([userId, periodEnd])
+}
+
+// 可验证洞察：引用真实商品/实体/来源
+model Insight {
+  id          String   @id @default(cuid())
+  reportId    String
+  report      InsightReport @relation(fields: [reportId], references: [id])
+  type        String // NEW_PRODUCT_RECOMMENDATION | STALLED_BUILDING | STRUCTURE_COMPLETION
+  score       Int
+  reasonCodes String // JSON 数组
+  headline    String
+  body        String
+  productId   String?
+  product     CatalogProduct? @relation(fields: [productId], references: [id])
+  assetId     String?
+  asset       CollectionAsset? @relation(fields: [assetId], references: [id])
+  sourceUrl   String?
+  sourceDate  DateTime?
+  eventPriceMinor Int?
+  sortOrder   Int      @default(0)
+
+  feedbacks   InsightFeedback[]
+}
+
+// 有用 / 不感兴趣 / 已采取行动
+model InsightFeedback {
+  id        String   @id @default(cuid())
+  insightId String
+  insight   Insight  @relation(fields: [insightId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  value     String // USEFUL | NOT_INTERESTED | ACTED
+  actedAt   DateTime @default(now())
+  // 反馈时推荐依据的指纹（FR-09：30 天内依据未变继续抑制，依据实质变化允许重新推荐）
+  basisFingerprint String?
+}
+
+// Agent 运行审计
+model AgentRun {
+  id           String   @id @default(cuid())
+  runType      String // RECOGNITION | REPORT_GENERATION
+  userId       String? // 运行发起人（Demo 限额与审计用；旧数据为 null）
+  inputVersion String?
+  outputRefs   String?
+  status       String // OK | ERROR
+  latencyMs    Int
+  error        String?
+  createdAt    DateTime @default(now())
+}
+
+// 版本化收藏路线：节点（里程碑或目录商品键），按 version 整体演进
+model RouteNode {
+  id         String  @id // 如 "uc-v1-n1"
+  routeId    String // 如 "UC" / "TECHNIC-SUPERCAR"
+  version    String // 如 "route-v1"
+  order      Int
+  label      String
+  nodeKind   String // MILESTONE | PRODUCT
+  productKey String? // CatalogProduct.id；路线与目录解耦，商品缺失不阻断
+  note       String?
+
+  @@unique([routeId, version, order])
+  @@index([routeId, version])
+}
+
+// 版本化收藏路线：边（节点先后关系，同一 routeId+version 内）
+model RouteEdge {
+  id         String @id @default(cuid())
+  routeId    String
+  version    String
+  fromNodeId String
+  toNodeId   String
+
+  @@unique([routeId, version, fromNodeId, toNodeId])
+  @@index([routeId, version])
+}

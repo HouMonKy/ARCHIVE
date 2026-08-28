@@ -1,0 +1,359 @@
+@import "tailwindcss";
+
+/*
+ * ARCHIVE 设计系统（返工轮任务 4）——视觉母题：实体展示柜。
+ * 色板（任务书固定）：Archive Black #090C0F / Drawer #171C21 / Label Silver #AEB8C1 /
+ * Paper #F3F6F7 / Index Amber #FFB000 / Scanner Cyan #43D7FF。
+ * 字体：Oxanium + Space Grotesk（标题/数字）、PingFang SC（中文正文）、IBM Plex Mono（型号）。
+ * 禁止：全页渐变、玻璃拟态、霓虹堆叠；hover 抬升 2px；reduced-motion 全局关闭动效。
+ */
+
+@theme {
+  --color-archive: #090c0f;
+  --color-drawer: #171c21;
+  --color-silver: #aeb8c1;
+  --color-paper: #f3f6f7;
+  --color-amber: #ffb000;
+  --color-scanner: #43d7ff;
+  /* 兼容旧工具类名（值映射到新色板） */
+  --color-ink: #f3f6f7;
+  --color-workbench: #0d1014;
+  --color-aluminium: #4d5860;
+  --color-signal: #ffb000;
+  --color-blueprint: #43d7ff;
+  --color-success: #2fb586;
+}
+
+:root {
+  --archive-black: #090c0f;
+  --drawer: #171c21;
+  --drawer-edge: #232a31;
+  --label-silver: #aeb8c1;
+  --paper: #f3f6f7;
+  --index-amber: #ffb000;
+  --scanner-cyan: #43d7ff;
+  /* 兼容旧变量名 */
+  --ink: #f3f6f7;
+  --workbench: #0d1014;
+  --aluminium: #4d5860;
+  --signal: #ffb000;
+  --blueprint: #43d7ff;
+  --success: #2fb586;
+  --surface: #171c21;
+  --ink-70: #c6cdd3;
+  --ink-50: #8a939b;
+  --rule: #232a31;
+  --font-head: var(--font-oxanium), var(--font-space-grotesk), "Oxanium", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-ibm-plex-mono), "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--archive-black);
+  color: var(--paper);
+  font-family: var(--font-body);
+}
+
+/* 数字与西文标题：Oxanium / Space Grotesk（宽体全大写克制使用） */
+.wb-num,
+h1, h2, h3 {
+  font-family: var(--font-head);
+  letter-spacing: -0.01em;
+}
+
+/* 型号/标签：IBM Plex Mono 大写 */
+.wb-mono {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wb-mono-sm {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+/* 品牌字标：克制宽体全大写（字母 A 带档案槽口由 SVG 提供） */
+.archive-wordmark {
+  font-family: var(--font-head);
+  font-weight: 700;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+}
+
+/* 键盘焦点：清晰可见（扫描青描边） */
+*:focus-visible {
+  outline: 2px solid var(--scanner-cyan);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.wb-index {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  color: var(--ink-50);
+}
+
+/* 抽屉表面：Drawer 底 + 细边 + 小圆角 */
+.wb-card {
+  background: var(--drawer);
+  border: 1px solid var(--drawer-edge);
+  border-radius: 4px;
+}
+
+.wb-rule {
+  border-color: var(--rule);
+}
+
+.wb-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-50);
+  margin-bottom: 6px;
+}
+
+.wb-input {
+  width: 100%;
+  border: 1px solid var(--aluminium);
+  border-radius: 3px;
+  padding: 8px 12px;
+  font-size: 14px;
+  background: var(--archive-black);
+  color: var(--paper);
+  font-family: var(--font-body);
+}
+
+.wb-input:focus {
+  border-color: var(--scanner-cyan);
+}
+
+.wb-input:disabled {
+  background: var(--workbench);
+  color: var(--ink-50);
+}
+
+.wb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 3px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  font-family: var(--font-body);
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.wb-btn-primary {
+  background: var(--index-amber);
+  color: #1a1200;
+}
+
+.wb-btn-primary:hover:not(:disabled) {
+  background: #ffc233;
+}
+
+.wb-btn-signal {
+  background: var(--index-amber);
+  color: #1a1200;
+}
+
+.wb-btn-signal:hover:not(:disabled) {
+  background: #ffc233;
+}
+
+.wb-btn-secondary {
+  background: transparent;
+  color: var(--paper);
+  border-color: var(--aluminium);
+}
+
+.wb-btn-secondary:hover:not(:disabled) {
+  border-color: var(--label-silver);
+}
+
+.wb-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ———— 收藏柜（签名元素） ———— */
+
+/* 柜格：抽屉底 + 层板线（格底加厚的搁板沿）+ 轻微聚光（格内径向微光，非全页渐变） */
+.cabinet-cell {
+  position: relative;
+  display: block;
+  background: var(--drawer);
+  border: 1px solid var(--drawer-edge);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.cabinet-cell:hover {
+  transform: translateY(-2px); /* hover 抬升 2px */
+  border-color: #38424c;
+}
+
+/*
+ * 商品展示台：图片完整装入柜格，不再用 cover 裁掉盒面。
+ * 内缩空间让图片避开外框、左侧状态色条和底部层板，同时保留“陈列柜”感。
+ */
+.cabinet-image-stage {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 10px 12px 12px;
+  background: #101418;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+}
+
+.cabinet-product-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  object-fit: contain;
+  object-position: center;
+}
+
+/* 桌面柜格用完整的 190px+ 垂直展示面；只保留横向安全边距，避免外框遮住图片。 */
+@media (min-width: 1024px) {
+  .cabinet-image-stage {
+    padding: 0 10px;
+  }
+}
+
+/* 轻微聚光：格内顶部径向微光（仅限格内；禁全页渐变） */
+.cabinet-spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 90% 55% at 50% -12%, rgba(67, 215, 255, 0.07), transparent 70%);
+}
+
+/* 层板线：柜格底部搁板沿 */
+.cabinet-shelf::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background: #232a31;
+  border-top: 1px solid #2e363f;
+}
+
+/* 柜格标签区（名称/型号/状态/价格） */
+.cabinet-label {
+  padding: 10px 12px 14px;
+}
+
+/* 旧工具类兼容（渐进替换期，值已映射新色板） */
+.mb-card {
+  background: var(--drawer);
+  border: 1px solid var(--drawer-edge);
+  border-radius: 4px;
+}
+
+.mb-input {
+  width: 100%;
+  border: 1px solid var(--aluminium);
+  border-radius: 3px;
+  padding: 8px 12px;
+  font-size: 14px;
+  background: var(--archive-black);
+  color: var(--paper);
+}
+
+.mb-input:disabled {
+  background: var(--workbench);
+  color: var(--ink-50);
+}
+
+.mb-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-70);
+  margin-bottom: 4px;
+}
+
+.mb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 3px;
+  padding: 11px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.mb-btn-primary {
+  background: var(--index-amber);
+  color: #1a1200;
+}
+
+.mb-btn-primary:hover:not(:disabled) {
+  background: #ffc233;
+}
+
+.mb-btn-secondary {
+  background: transparent;
+  color: var(--paper);
+  border-color: var(--aluminium);
+}
+
+.mb-btn-secondary:hover:not(:disabled) {
+  border-color: var(--label-silver);
+}
+
+.mb-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.mb-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 3px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+/* 减少动效偏好：关闭过渡与动画（含 hover 抬升） */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .cabinet-cell:hover {
+    transform: none;
+  }
+}

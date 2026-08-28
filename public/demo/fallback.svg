@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="360" viewBox="0 0 480 360" role="img" aria-label="商品图未缓存占位图">
+  <rect width="480" height="360" fill="#eef1f6"/>
+  <rect x="12" y="12" width="456" height="336" fill="none" stroke="#c3cbd9" stroke-width="2" stroke-dasharray="10 6"/>
+  <g transform="translate(240 150)">
+    <rect x="-44" y="-44" width="88" height="88" rx="8" fill="none" stroke="#9aa6b8" stroke-width="4"/>
+    <path d="M-44,22 L0,-18 L44,22" fill="none" stroke="#9aa6b8" stroke-width="4"/>
+    <circle cx="24" cy="-24" r="8" fill="none" stroke="#9aa6b8" stroke-width="4"/>
+  </g>
+  <text x="240" y="230" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="18" fill="#5b6575">商品图未缓存</text>
+  <text x="240" y="258" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#8b93a3">运行 npm run images:fetch 获取本机私用演示图</text>
+</svg>

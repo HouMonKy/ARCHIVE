@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="640" viewBox="0 0 480 640" role="img" aria-label="演示样例：MGEX Unicorn Gundam Ver.Ka 盒面（合成演示图，非 Bandai 官方素材）">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1a1f2e"/>
+      <stop offset="1" stop-color="#2d3550"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="640" fill="url(#bg)"/>
+  <rect x="16" y="16" width="448" height="608" fill="none" stroke="#d9b64e" stroke-width="3"/>
+  <text x="40" y="80" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#d9b64e" font-weight="bold">BANDAI SPIRITS</text>
+  <text x="40" y="130" font-family="Helvetica, Arial, sans-serif" font-size="52" fill="#ffffff" font-weight="bold">MGEX</text>
+  <text x="40" y="190" font-family="Helvetica, Arial, sans-serif" font-size="30" fill="#ffffff">1/100 UNICORN GUNDAM</text>
+  <text x="40" y="232" font-family="Helvetica, Arial, sans-serif" font-size="26" fill="#c8cede">Ver.Ka</text>
+  <g transform="translate(240 420)">
+    <polygon points="0,-110 60,-30 40,90 -40,90 -60,-30" fill="#e8e9ee"/>
+    <polygon points="0,-110 60,-30 0,10 -60,-30" fill="#f7f7f9"/>
+    <circle cx="-14" cy="-20" r="6" fill="#2b3d66"/>
+    <circle cx="14" cy="-20" r="6" fill="#2b3d66"/>
+    <path d="M-60,30 L0,70 L60,30" fill="none" stroke="#d9b64e" stroke-width="4"/>
+  </g>
+  <text x="40" y="600" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#8b93a7">GUNPLA · SYNTHETIC DEMO SAMPLE</text>
+</svg>

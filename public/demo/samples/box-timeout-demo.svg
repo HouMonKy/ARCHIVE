@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="640" viewBox="0 0 480 640" role="img" aria-label="演示样例：识别超时演练（合成演示图）">
+  <rect width="480" height="640" fill="#2b1f1f"/>
+  <rect x="16" y="16" width="448" height="608" fill="none" stroke="#c25b4a" stroke-width="3"/>
+  <text x="240" y="300" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="64" fill="#e0705f" font-weight="bold">TIMEOUT</text>
+  <text x="240" y="350" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#d9a49b">RECOGNITION DELAY TEST</text>
+  <circle cx="240" cy="440" r="46" fill="none" stroke="#c25b4a" stroke-width="6" stroke-dasharray="70 30"/>
+  <text x="240" y="600" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#a38078">SYNTHETIC DEMO SAMPLE</text>
+</svg>

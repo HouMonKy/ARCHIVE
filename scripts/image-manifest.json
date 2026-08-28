@@ -1,0 +1,92 @@
+{
+  "description": "Bandai 官网商品图一次性获取清单（D0 专用）。仅限本人本机私用（rights_basis=personal-use）：不商用、不公开部署、不传播；二进制仅存于已 gitignore 的 private-assets/product-images/，严禁进入 Git、构建包或共享目录。来源：PRD 第 17 节（2026-08-25 产品负责人确认）。",
+  "fetched_at": "2026-08-25",
+  "rights_basis": "personal-use",
+  "allowed_hosts": ["bandai-hobby.net", "bandai-a.akamaihd.net"],
+  "products": [
+    {
+      "code": "P01",
+      "canonical_name": "MG RX-78-2 Gundam Ver.3.0",
+      "official_name_ja": "MG 1/100 RX-78-2 ガンダムVer.3.0",
+      "source_page": "https://bandai-hobby.net/item/01_5849/",
+      "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000083326_1.jpg"
+    },
+    {
+      "code": "P02",
+      "canonical_name": "MG Zeta Gundam Ver.Ka",
+      "official_name_ja": "MG 1/100 ゼータガンダム Ver.Ka",
+      "source_page": "https://bandai-hobby.net/item/01_4311/",
+      "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000182284_1.jpg"
+    },
+    {
+      "code": "P03",
+      "canonical_name": "MGEX Unicorn Gundam Ver.Ka",
+      "official_name_ja": "MGEX 1/100 ユニコーンガンダム Ver.Ka",
+      "source_page": "https://bandai-hobby.net/item/01_3010/",
+      "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000150001_1.jpg"
+    },
+    {
+      "code": "P04",
+      "canonical_name": "RG ν Gundam",
+      "official_name_ja": "RG 1/144 νガンダム",
+      "source_page": "https://bandai-hobby.net/item/01_2343/",
+      "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000138247_1.jpg"
+    },
+    {
+      "code": "P05",
+      "canonical_name": "PG Unleashed RX-78-2 Gundam",
+      "official_name_ja": "PG UNLEASHED 1/60 RX-78-2 ガンダム",
+      "source_page": "https://bandai-hobby.net/item/01_3328/",
+      "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000153119_1.jpg"
+    },
+    {
+      "code": "P06",
+      "canonical_name": "HGUC Narrative Gundam C-Packs",
+      "official_name_ja": "HGUC 1/144 ナラティブガンダム C装備",
+      "source_page": "https://bandai-hobby.net/item/01_2157/",
+      "image_url": "https://bandai-hobby.net/images/153_3107_s_kjxq01xn6bnczb2ujvwuo7p53a9j.jpg"
+    },
+    {
+      "code": "P07",
+      "canonical_name": "MG Sinanju Stein Narrative Ver. Ver.Ka",
+      "official_name_ja": "MG 1/100 シナンジュ・スタイン (ナラティブ Ver.) Ver.Ka",
+      "source_page": "https://bandai-hobby.net/item/01_5187/",
+      "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000209614_1.jpg"
+    },
+    {
+      "code": "P08",
+      "canonical_name": "RG Sazabi",
+      "official_name_ja": "RG 1/144 サザビー",
+      "source_page": "https://bandai-hobby.net/item/01_1408/",
+      "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000128159_1.jpg"
+    },
+    {
+      "code": "P09",
+      "canonical_name": "HGUC Gundam Mk-II Revive",
+      "official_name_ja": "HGUC 1/144ガンダムMk-II（エゥーゴ仕様）",
+      "source_page": "https://bandai-hobby.net/item/01_437/",
+      "image_url": "https://bandai-hobby.net/images/153_1406_s_z5uoacb3fqdsigekzybhbqom92es.jpg"
+    },
+    {
+      "code": "P10",
+      "canonical_name": "MG Hyaku-Shiki Ver.2.0",
+      "official_name_ja": "MG 1/100 百式 Ver.2.0",
+      "source_page": "https://bandai-hobby.net/item/01_338/",
+      "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000097588_1.jpg"
+    },
+    {
+      "code": "P11",
+      "canonical_name": "MG Wing Gundam Zero EW Ver.Ka",
+      "official_name_ja": "MG 1/100 ウイングガンダムゼロEW Ver.Ka",
+      "source_page": "https://bandai-hobby.net/item/01_2981/",
+      "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000152228_1.jpg"
+    },
+    {
+      "code": "P12",
+      "canonical_name": "MG Freedom Gundam Ver.2.0",
+      "official_name_ja": "MG 1/100 フリーダムガンダム Ver.2.0",
+      "source_page": "https://bandai-hobby.net/item/01_542/",
+      "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000103889_1.jpg"
+    }
+  ]
+}
