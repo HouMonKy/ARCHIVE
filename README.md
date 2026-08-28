@@ -35,7 +35,7 @@ ARCHIVE 是一个面向 LEGO、Bandai 高达及其他模型收藏玩家的 AI �
 | 模式 | 用途 | 数据 | 权限 |
 | --- | --- | --- | --- |
 | Owner | 本人长期使用 | 私有真实收藏 | 完整功能，含设置 |
-| Visitor | 面试体验 | 独立沙箱和 10 件脱敏样例 | 可浏览、入柜和生成建议；不能访问 Owner 设置或数据 |
+| Visitor | 访客试用 | 独立沙箱和 10 件脱敏样例 | 可浏览、入柜和生成建议；不能访问 Owner 设置或数据 |
 
 首次初始化会自动给 Visitor 创建 10 件样例，取自当前收藏的脱敏快照：
 
@@ -49,7 +49,7 @@ ARCHIVE 是一个面向 LEGO、Bandai 高达及其他模型收藏玩家的 AI �
 - API 配置、加密主密钥和用量历史
 - Owner 的完整收藏数据库
 
-Visitor 每日最多进行 3 次图片识别和 1 次收藏建议生成，以避免面试体验意外消耗过多 API 额度。Visitor 的新增、修改与反馈也和 Owner 数据隔离。
+Visitor 每日最多进行 3 次图片识别和 1 次收藏建议生成，以避免访客试用意外消耗过多 API 额度。Visitor 的新增、修改与反馈也和 Owner 数据隔离。
 
 ## 本地快速开始
 
@@ -129,9 +129,9 @@ npm run dev
 本地默认登录凭据：
 
 - Owner：`archive-owner`
-- Visitor：`interview`
+- Visitor：通过 `.env.local` 中的 `VISITOR_ACCESS_CODE` 设置访问码
 
-这些默认值只为本机首次体验准备。长期使用前，请在 `.env.local` 设置自己的 `OWNER_PASSWORD` 和 `VISITOR_ACCESS_CODE`，然后重启服务。
+Owner 默认密码只为本机首次体验准备。长期使用前，请在 `.env.local` 设置自己的 `OWNER_PASSWORD` 和 `VISITOR_ACCESS_CODE`，然后重启服务。
 
 ## 配置 AI
 
