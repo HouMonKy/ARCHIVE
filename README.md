@@ -177,6 +177,8 @@ npm run dev
 
 ```dotenv
 # 图片识别
+# 任意支持多模态的模型皆可
+# 实测下来 DeepSeek 会好一点，在梁文谷时段价格优势特别明显 :)
 MOONSHOT_API_KEY="<your-moonshot-key>"
 KIMI_MODEL="kimi-k2.6"
 KIMI_BASE_URL="https://api.moonshot.cn/v1"
