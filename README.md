@@ -87,7 +87,16 @@ Windows PowerShell：
 Copy-Item .env.example .env.local
 ```
 
-不配置 API 也能启动、浏览 Visitor 样例并手动入柜；真实图片识别和 AI 收藏建议需要完成下方“配置 AI”步骤。
+打开 `.env.local`，先为两种身份分别设置只属于当前运行环境的凭据：
+
+```dotenv
+OWNER_PASSWORD="<replace-with-your-owner-password>"
+VISITOR_ACCESS_CODE="<replace-with-your-visitor-access-code>"
+```
+
+请替换尖括号内的占位文字，不要把真实凭据提交到 Git。ARCHIVE 不提供内置默认密码；本地与托管环境缺少对应变量时，该身份会拒绝登录并提示缺少的配置项。
+
+不配置 API 也能启动、登录、浏览 Visitor 样例并手动入柜；真实图片识别和 AI 收藏建议需要完成下方“配置 AI”步骤。
 
 ### 4. 初始化数据库和 Visitor 样例
 
@@ -126,12 +135,7 @@ npm run dev
 
 打开 [http://127.0.0.1:3000](http://127.0.0.1:3000)。
 
-本地默认登录凭据：
-
-- Owner：`archive-owner`
-- Visitor：通过 `.env.local` 中的 `VISITOR_ACCESS_CODE` 设置访问码
-
-Owner 默认密码只为本机首次体验准备。长期使用前，请在 `.env.local` 设置自己的 `OWNER_PASSWORD` 和 `VISITOR_ACCESS_CODE`，然后重启服务。
+使用第 3 步在 `.env.local` 中自行设置的 Owner 密码或 Visitor 访问码登录。修改凭据后必须重启服务；仓库、README 和配置模板都不会保存可直接登录的默认值。
 
 ## 配置 AI
 

@@ -10,7 +10,7 @@ import path from "node:path"
  */
 
 const OWNER_SECRET = "product-e2e-owner"
-const DEMO_SECRET = "product-e2e-demo"
+const VISITOR_SECRET = "product-e2e-visitor"
 const SAMPLES_DIR = path.resolve(process.cwd(), "public/demo/samples")
 
 function sampleFile(name: string): { name: string; mimeType: string; buffer: Buffer } {
@@ -85,7 +85,7 @@ test.describe("租户隔离", () => {
     // Demo 登录：空沙箱
     await page.getByTestId("logout-button").click()
     await expect(page).toHaveURL(/\/login/)
-    await login(page, "demo", DEMO_SECRET)
+    await login(page, "demo", VISITOR_SECRET)
     await page.goto("/")
     await expect(page.getByTestId("empty-state")).toBeVisible()
     await page.goto("/collection")
@@ -93,7 +93,7 @@ test.describe("租户隔离", () => {
     await expect(page.getByTestId("empty-state").first()).toBeVisible()
 
     // Demo 手动新增一件 → Demo 可见
-    const demoCookie = await apiLogin(request, "demo", DEMO_SECRET)
+    const demoCookie = await apiLogin(request, "demo", VISITOR_SECRET)
     const create = await request.post("/api/assets", {
       data: {
         productId: "P01",
@@ -117,7 +117,7 @@ test.describe("租户隔离", () => {
 
 test.describe("Demo 每日限额", () => {
   test("识别 3 次/日：第 4 次返回 429", async ({ request }) => {
-    const cookie = await apiLogin(request, "demo", DEMO_SECRET)
+    const cookie = await apiLogin(request, "demo", VISITOR_SECRET)
     const samples = [
       "box-unicorn-demo.svg",
       "box-zeta-glare-demo.svg",
@@ -144,7 +144,7 @@ test.describe("Demo 每日限额", () => {
   })
 
   test("周报 1 次/日：第 2 次返回 429", async ({ request }) => {
-    const cookie = await apiLogin(request, "demo", DEMO_SECRET)
+    const cookie = await apiLogin(request, "demo", VISITOR_SECRET)
     // 补足 3 件解锁周报
     for (let i = 0; i < 3; i++) {
       await request.post("/api/assets", {

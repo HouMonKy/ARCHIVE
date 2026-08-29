@@ -36,7 +36,7 @@ const LEGO_IMAGE = LEGO_IMAGE_CANDIDATES.find((f) => existsSync(f)) ?? LEGO_IMAG
 const APP_PORT = "3295"
 const ACCEPT_PORT = "3296"
 const APP_OWNER_SECRET = "accept-app-owner"
-const APP_DEMO_SECRET = "accept-app-demo"
+const APP_VISITOR_SECRET = "accept-app-visitor"
 
 function fail(message: string): never {
   console.error(`[accept:live] 失败：${message}`)
@@ -263,7 +263,7 @@ function contrastRatio(fg: [number, number, number], bg: [number, number, number
 /** 阶段 3：acceptance.db 生产服务器 UI 全链路（真实 Kimi 视觉 + 真实 $web_search） */
 async function runUiAcceptance(): Promise<void> {
   const { chromium } = await import("@playwright/test")
-  const server = await spawnServer(ACCEPT_DB, ACCEPT_PORT, { OWNER_PASSWORD: APP_OWNER_SECRET, DEMO_ACCESS_CODE: APP_DEMO_SECRET }, "acceptance.db UI 验收")
+  const server = await spawnServer(ACCEPT_DB, ACCEPT_PORT, { OWNER_PASSWORD: APP_OWNER_SECRET, VISITOR_ACCESS_CODE: APP_VISITOR_SECRET }, "acceptance.db UI 验收")
   const browser = await chromium.launch()
   try {
     const base = `http://127.0.0.1:${ACCEPT_PORT}`

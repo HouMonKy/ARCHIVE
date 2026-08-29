@@ -10,7 +10,7 @@ import { test, expect, type APIRequestContext, type Page } from "@playwright/tes
  */
 
 const OWNER_SECRET = "product-e2e-owner"
-const DEMO_SECRET = "product-e2e-demo"
+const VISITOR_SECRET = "product-e2e-visitor"
 
 async function login(page: Page, mode: "owner" | "demo", secret: string): Promise<void> {
   await page.goto("/login")
@@ -51,13 +51,13 @@ test("Owner：Header 有「设置」按钮，进入 /settings 可配置 Kimi/Dee
 })
 
 test("Visitor：无设置按钮，直访 /settings 跳回，API 403", async ({ page, request }) => {
-  await login(page, "demo", DEMO_SECRET)
+  await login(page, "demo", VISITOR_SECRET)
   await expect(page.getByTestId("settings-button")).toHaveCount(0)
   await page.goto("/settings")
   await expect(page).not.toHaveURL(/\/settings/)
   // API：Visitor 登录态 → 403（request 上下文需显式携带 Cookie）
   const loginRes = await request.post("/api/auth/login", {
-    data: { mode: "demo", secret: DEMO_SECRET },
+    data: { mode: "demo", secret: VISITOR_SECRET },
     headers: { origin: "http://127.0.0.1:3200" },
   })
   expect(loginRes.ok()).toBeTruthy()
@@ -149,7 +149,7 @@ test("同源校验：跨源 POST /api/settings 403", async ({ request }) => {
 })
 
 test("Visitor 调用连接测试接口 403", async ({ request }) => {
-  const res = await request.post("/api/auth/login", { data: { mode: "demo", secret: DEMO_SECRET } })
+  const res = await request.post("/api/auth/login", { data: { mode: "demo", secret: VISITOR_SECRET } })
   const cookie = res.headers()["set-cookie"]?.split(";")[0] ?? ""
   const res2 = await request.post("/api/settings/test", { headers: { cookie }, data: { provider: "recognition" } })
   expect(res2.status()).toBe(403)

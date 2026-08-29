@@ -25,6 +25,15 @@ import { recordAiUsage, getMonthlyBudgetStatus, estimateCostMinor, BUDGET_HARD_L
 import { demoNow } from "@/lib/clock"
 
 const opts = { hosted: false, secure: false }
+const OWNER_TEST_SECRET = "unit-owner-secret"
+const VISITOR_TEST_SECRET = "unit-visitor-secret"
+const originalOwnerPassword = process.env.OWNER_PASSWORD
+const originalVisitorAccessCode = process.env.VISITOR_ACCESS_CODE
+
+function restoreEnv(key: "OWNER_PASSWORD" | "VISITOR_ACCESS_CODE", value: string | undefined): void {
+  if (value === undefined) delete process.env[key]
+  else process.env[key] = value
+}
 
 describe("会话 Cookie 签名（契约）", () => {
   it("签名 Cookie 可验证；篡改任意一位即失效", () => {
@@ -55,12 +64,19 @@ describe("会话 Cookie 签名（契约）", () => {
 
 describe("登录/登出与租户身份（契约）", () => {
   beforeAll(async () => {
+    process.env.OWNER_PASSWORD = OWNER_TEST_SECRET
+    process.env.VISITOR_ACCESS_CODE = VISITOR_TEST_SECRET
     await resetTestDb()
+  })
+
+  afterAll(() => {
+    restoreEnv("OWNER_PASSWORD", originalOwnerPassword)
+    restoreEnv("VISITOR_ACCESS_CODE", originalVisitorAccessCode)
   })
 
   it("Owner 正确密码登录成功并下发会话 Cookie", async () => {
     const db = getTestDb()
-    const result = await login(db, { mode: "owner", secret: "archive-owner" }, opts)
+    const result = await login(db, { mode: "owner", secret: OWNER_TEST_SECRET }, opts)
     expect(result.user.id).toBe(OWNER_USER_ID)
     expect(result.user.role).toBe("OWNER")
     expect(result.setCookie).toContain(`${SESSION_COOKIE}=`)
@@ -73,16 +89,42 @@ describe("登录/登出与租户身份（契约）", () => {
     await expect(login(db, { mode: "owner", secret: "wrong" }, opts)).rejects.toMatchObject({ status: 401 })
   })
 
-  it("Demo 访问码登录进入独立租户（demo-guest，DEMO 角色）", async () => {
+  it("Visitor 访问码登录进入独立租户（demo-guest，DEMO 角色）", async () => {
     const db = getTestDb()
-    const result = await login(db, { mode: "demo", secret: "interview" }, opts)
+    const result = await login(db, { mode: "demo", secret: VISITOR_TEST_SECRET }, opts)
     expect(result.user.id).toBe(DEMO_TENANT_USER_ID)
     expect(result.user.role).toBe("DEMO")
   })
 
+  it("本地 Owner 未配置密码时明确拒绝登录，不使用默认值", async () => {
+    const db = getTestDb()
+    delete process.env.OWNER_PASSWORD
+    try {
+      await expect(login(db, { mode: "owner", secret: OWNER_TEST_SECRET }, opts)).rejects.toMatchObject({
+        status: 500,
+        code: "AUTH_NOT_CONFIGURED",
+      })
+    } finally {
+      process.env.OWNER_PASSWORD = OWNER_TEST_SECRET
+    }
+  })
+
+  it("本地 Visitor 未配置访问码时明确拒绝登录，不使用默认值", async () => {
+    const db = getTestDb()
+    delete process.env.VISITOR_ACCESS_CODE
+    try {
+      await expect(login(db, { mode: "demo", secret: VISITOR_TEST_SECRET }, opts)).rejects.toMatchObject({
+        status: 500,
+        code: "AUTH_NOT_CONFIGURED",
+      })
+    } finally {
+      process.env.VISITOR_ACCESS_CODE = VISITOR_TEST_SECRET
+    }
+  })
+
   it("Cookie 解析出用户；登出（撤销）后失效", async () => {
     const db = getTestDb()
-    const { setCookie } = await login(db, { mode: "owner", secret: "archive-owner" }, opts)
+    const { setCookie } = await login(db, { mode: "owner", secret: OWNER_TEST_SECRET }, opts)
     const cookieHeader = setCookie.split(";")[0]!
     const user = await getUserFromCookie(db, cookieHeader)
     expect(user?.id).toBe(OWNER_USER_ID)
@@ -95,7 +137,7 @@ describe("登录/登出与租户身份（契约）", () => {
     const db = getTestDb()
     expect(await getUserFromCookie(db, `${SESSION_COOKIE}=${newSessionId()}.deadbeef`)).toBeNull()
     // 过期：手工把会话 expiresAt 改到过去
-    const { setCookie } = await login(db, { mode: "owner", secret: "archive-owner" }, opts)
+    const { setCookie } = await login(db, { mode: "owner", secret: OWNER_TEST_SECRET }, opts)
     const header = setCookie.split(";")[0]!
     const sessionId = readSessionIdFromCookie(header)!
     await db.session.update({ where: { id: sessionId }, data: { expiresAt: new Date(Date.now() - 1000) } })

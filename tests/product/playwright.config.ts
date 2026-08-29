@@ -21,7 +21,7 @@ export default defineConfig({
     video: "off",
   },
   webServer: {
-    command: "npm run db:reset && npm run build && E2E_MODE=1 E2E_AUTO_LOGIN=0 OWNER_PASSWORD=product-e2e-owner DEMO_ACCESS_CODE=product-e2e-demo PORT=3200 npm run start",
+    command: "npm run db:reset && npm run build && E2E_MODE=1 E2E_AUTO_LOGIN=0 OWNER_PASSWORD=product-e2e-owner VISITOR_ACCESS_CODE=product-e2e-visitor PORT=3200 npm run start",
     url: "http://127.0.0.1:3200",
     timeout: 420_000,
     reuseExistingServer: false,

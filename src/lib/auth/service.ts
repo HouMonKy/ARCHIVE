@@ -18,8 +18,7 @@ const scrypt = promisify(scryptCb) as (pw: string, salt: string, keylen: number)
 /**
  * 身份与租户服务（任务 1）：
  * - Owner（本人）：密码来自 OWNER_PASSWORD 环境变量，scrypt 验证，不落库；
- * - Visitor（面试沙箱）：访问码优先来自 VISITOR_ACCESS_CODE，兼容旧的 DEMO_ACCESS_CODE；
- *   独立租户 + 每日限额；
+ * - Visitor（访客沙箱）：访问码来自 VISITOR_ACCESS_CODE，独立租户 + 每日限额；
  * - 会话：签名 Cookie 指向数据库 Session 行，可撤销、可过期。
  */
 
@@ -28,9 +27,6 @@ export const DEMO_TENANT_USER_ID = "demo-guest"
 
 export const DEMO_RECOGNITION_DAILY_LIMIT = 3
 export const DEMO_REPORT_DAILY_LIMIT = 1
-
-export const LOCAL_OWNER_DEFAULT_PASSWORD = "archive-owner" // 仅本机默认；HOSTED 必须显式设置 OWNER_PASSWORD
-export const LOCAL_DEMO_DEFAULT_ACCESS_CODE = "interview" // 仅本机默认；HOSTED 必须显式设置 Visitor 访问码
 
 export interface AuthenticatedUser {
   id: string
@@ -69,13 +65,13 @@ async function verifySecret(input: string, expected: string): Promise<boolean> {
   return timingSafeEqual(a, b)
 }
 
-function requiredPassword(env: NodeJS.ProcessEnv, hosted: boolean, key: string, localDefault: string): string {
-  const v = env[key]
-  if (v) return v
-  if (hosted) {
-    throw new AppError(`${key} 未配置：托管环境必须显式设置访问凭据`, { status: 500, code: "AUTH_NOT_CONFIGURED" })
-  }
-  return localDefault
+function requiredPassword(env: NodeJS.ProcessEnv, key: "OWNER_PASSWORD" | "VISITOR_ACCESS_CODE"): string {
+  const value = env[key]
+  if (value?.trim()) return value
+  throw new AppError(`${key} 未配置：请在 .env.local 或运行环境中显式设置访问凭据`, {
+    status: 500,
+    code: "AUTH_NOT_CONFIGURED",
+  })
 }
 
 export interface LoginResult {
@@ -96,16 +92,12 @@ export async function login(
   let user: User | null = null
 
   if (mode === "owner") {
-    const expected = requiredPassword(env, options.hosted, "OWNER_PASSWORD", LOCAL_OWNER_DEFAULT_PASSWORD)
+    const expected = requiredPassword(env, "OWNER_PASSWORD")
     if (await verifySecret(secret, expected)) {
       user = await db.user.findUnique({ where: { id: OWNER_USER_ID } })
     }
   } else {
-    const visitorEnv = {
-      ...env,
-      VISITOR_ACCESS_CODE: env.VISITOR_ACCESS_CODE ?? env.DEMO_ACCESS_CODE,
-    }
-    const expected = requiredPassword(visitorEnv, options.hosted, "VISITOR_ACCESS_CODE", LOCAL_DEMO_DEFAULT_ACCESS_CODE)
+    const expected = requiredPassword(env, "VISITOR_ACCESS_CODE")
     if (await verifySecret(secret, expected)) {
       user = await db.user.findUnique({ where: { id: DEMO_TENANT_USER_ID } })
     }

@@ -6,6 +6,11 @@ import { spawn } from "node:child_process"
 import { readFileSync } from "node:fs"
 
 async function main(): Promise<void> {
+  const ownerPassword = process.env.OWNER_PASSWORD
+  if (!ownerPassword?.trim()) {
+    throw new Error("OWNER_PASSWORD 未配置：生产冒烟测试不会使用默认登录密码")
+  }
+
   const server = spawn("npm", ["run", "start"], {
     env: { ...process.env, PORT: "3300" },
     stdio: "ignore",
@@ -33,7 +38,7 @@ async function main(): Promise<void> {
     const login = await fetch("http://127.0.0.1:3300/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json", Origin: "http://127.0.0.1:3300" },
-      body: JSON.stringify({ mode: "owner", secret: process.env.OWNER_PASSWORD ?? "archive-owner" }),
+      body: JSON.stringify({ mode: "owner", secret: ownerPassword }),
     })
     const cookie = login.headers.get("set-cookie")!.split(";")[0]!
     console.log("1. owner login:", login.status)
