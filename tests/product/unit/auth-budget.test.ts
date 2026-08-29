@@ -12,6 +12,7 @@ import {
   readSessionIdFromCookie,
   OWNER_USER_ID,
   DEMO_TENANT_USER_ID,
+  VISITOR_DISPLAY_NAME,
   DEMO_RECOGNITION_DAILY_LIMIT,
   DEMO_REPORT_DAILY_LIMIT,
 } from "@/lib/auth/service"
@@ -94,6 +95,7 @@ describe("登录/登出与租户身份（契约）", () => {
     const result = await login(db, { mode: "demo", secret: VISITOR_TEST_SECRET }, opts)
     expect(result.user.id).toBe(DEMO_TENANT_USER_ID)
     expect(result.user.role).toBe("DEMO")
+    expect(result.user.displayName).toBe(VISITOR_DISPLAY_NAME)
   })
 
   it("本地 Owner 未配置密码时明确拒绝登录，不使用默认值", async () => {
@@ -181,7 +183,7 @@ describe("Demo 租户每日限额（识别 3 / 周报 1，Asia/Shanghai 日界�
     // Demo 用户今天跑 2 次识别
     await db.recognitionJob.create({ data: { userId: DEMO_TENANT_USER_ID, state: "SUCCEEDED", provider: "fixture", providerVersion: "v1", fileSha256: "a".repeat(64) } })
     await db.recognitionJob.create({ data: { userId: DEMO_TENANT_USER_ID, state: "SUCCEEDED", provider: "fixture", providerVersion: "v1", fileSha256: "b".repeat(64) } })
-    const demoUser = { id: DEMO_TENANT_USER_ID, displayName: "面试访客", role: "DEMO" as const }
+    const demoUser = { id: DEMO_TENANT_USER_ID, displayName: VISITOR_DISPLAY_NAME, role: "DEMO" as const }
     let check = await checkDemoQuota(db, demoUser, "RECOGNITION", now)
     expect(check.used).toBe(2)
     expect(check.allowed).toBe(true)
@@ -202,7 +204,7 @@ describe("Demo 租户每日限额（识别 3 / 周报 1，Asia/Shanghai 日界�
   it("周报限额 1 次/日", async () => {
     const db = getTestDb()
     const now = demoNow()
-    const demoUser = { id: DEMO_TENANT_USER_ID, displayName: "面试访客", role: "DEMO" as const }
+    const demoUser = { id: DEMO_TENANT_USER_ID, displayName: VISITOR_DISPLAY_NAME, role: "DEMO" as const }
     await db.agentRun.create({ data: { userId: DEMO_TENANT_USER_ID, runType: "REPORT_GENERATION", latencyMs: 10, status: "OK" } })
     const check = await checkDemoQuota(db, demoUser, "REPORT", now)
     expect(check.limit).toBe(DEMO_REPORT_DAILY_LIMIT)

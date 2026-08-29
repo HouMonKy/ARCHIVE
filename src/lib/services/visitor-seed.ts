@@ -1,5 +1,5 @@
 import type { PrismaClient } from "@prisma/client"
-import { DEMO_TENANT_USER_ID } from "../auth/service"
+import { DEMO_TENANT_USER_ID, VISITOR_DISPLAY_NAME } from "../auth/service"
 import { VISITOR_ASSETS, VISITOR_CATALOG_PRODUCTS } from "../visitor-dataset"
 
 export interface VisitorSeedResult {
@@ -9,14 +9,14 @@ export interface VisitorSeedResult {
 }
 
 /**
- * 幂等创建 Visitor 的 5 + 5 面试样例。
- * 只创建固定 ID 的缺失行，绝不更新或删除 Owner / Visitor 已有数据。
+ * 幂等创建 Visitor 的 5 + 5 公开样例。
+ * 规范化 Visitor 身份名称，并只创建固定 ID 的缺失商品与藏品；绝不修改或删除收藏数据。
  */
 export async function ensureVisitorShowcase(db: PrismaClient): Promise<VisitorSeedResult> {
   await db.user.upsert({
     where: { id: DEMO_TENANT_USER_ID },
-    update: {},
-    create: { id: DEMO_TENANT_USER_ID, displayName: "Visitor", role: "DEMO" },
+    update: { displayName: VISITOR_DISPLAY_NAME },
+    create: { id: DEMO_TENANT_USER_ID, displayName: VISITOR_DISPLAY_NAME, role: "DEMO" },
   })
 
   let createdProducts = 0

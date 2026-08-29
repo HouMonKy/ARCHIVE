@@ -1,7 +1,7 @@
 import type { PrismaClient } from "@prisma/client"
 import { ROUTE_DATA_VERSION, ROUTE_DEFS, edgesForRoute } from "../routes/route-data"
 import { DEMO_USER } from "../demo-dataset"
-import { DEMO_TENANT_USER_ID } from "../auth/service"
+import { DEMO_TENANT_USER_ID, VISITOR_DISPLAY_NAME } from "../auth/service"
 
 /**
  * 基础行确保（非破坏）：Owner/Demo 身份与版本化路线。
@@ -35,7 +35,7 @@ export async function ensureBaseRows(db: PrismaClient): Promise<EnsureBaseRowsRe
 
   if (!(await db.user.findUnique({ where: { id: DEMO_TENANT_USER_ID } }))) {
     await db.user.create({
-      data: { id: DEMO_TENANT_USER_ID, displayName: "面试访客", role: "DEMO" },
+      data: { id: DEMO_TENANT_USER_ID, displayName: VISITOR_DISPLAY_NAME, role: "DEMO" },
     })
     createdDemoTenant = true
   }

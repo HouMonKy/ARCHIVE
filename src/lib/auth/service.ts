@@ -24,6 +24,7 @@ const scrypt = promisify(scryptCb) as (pw: string, salt: string, keylen: number)
 
 export const OWNER_USER_ID = DEMO_USER.id // 保留 V1 的 Kai 作为 Owner
 export const DEMO_TENANT_USER_ID = "demo-guest"
+export const VISITOR_DISPLAY_NAME = "访客"
 
 export const DEMO_RECOGNITION_DAILY_LIMIT = 3
 export const DEMO_REPORT_DAILY_LIMIT = 1
@@ -35,7 +36,12 @@ export interface AuthenticatedUser {
 }
 
 export function toAuthenticatedUser(u: User): AuthenticatedUser {
-  return { id: u.id, displayName: u.displayName, role: u.role === "DEMO" ? "DEMO" : "OWNER" }
+  const role = u.role === "DEMO" ? "DEMO" : "OWNER"
+  return {
+    id: u.id,
+    displayName: role === "DEMO" ? VISITOR_DISPLAY_NAME : u.displayName,
+    role,
+  }
 }
 
 /** 数据库持久化的会话签名密钥（SESSION_SECRET 未设置时的回退，重启不失效） */

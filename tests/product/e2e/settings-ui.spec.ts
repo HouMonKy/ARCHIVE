@@ -52,6 +52,7 @@ test("Owner：Header 有「设置」按钮，进入 /settings 可配置 Kimi/Dee
 
 test("Visitor：无设置按钮，直访 /settings 跳回，API 403", async ({ page, request }) => {
   await login(page, "demo", VISITOR_SECRET)
+  await expect(page.getByText("Visitor · 访客", { exact: true })).toBeVisible()
   await expect(page.getByTestId("settings-button")).toHaveCount(0)
   await page.goto("/settings")
   await expect(page).not.toHaveURL(/\/settings/)

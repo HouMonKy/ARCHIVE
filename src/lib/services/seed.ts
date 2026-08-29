@@ -13,7 +13,7 @@ import {
 import { readImageManifest } from "../image-manifest"
 import type { ImageManifestEntry, ImageManifest } from "../image-manifest"
 import { ROUTE_DATA_VERSION, ROUTE_DEFS, edgesForRoute } from "../routes/route-data"
-import { DEMO_TENANT_USER_ID } from "../auth/service"
+import { DEMO_TENANT_USER_ID, VISITOR_DISPLAY_NAME } from "../auth/service"
 
 export { readImageManifest }
 export type { ImageManifestEntry, ImageManifest }
@@ -62,9 +62,9 @@ export async function seedDemoData(db: PrismaClient, options: SeedOptions = {}):
     },
   })
 
-  // 面试沙箱租户（DEMO）：独立数据、每日限额，见 src/lib/auth
+  // Visitor 沙箱租户（DEMO）：独立数据、每日限额，见 src/lib/auth
   await db.user.create({
-    data: { id: DEMO_TENANT_USER_ID, displayName: "面试访客", role: "DEMO" },
+    data: { id: DEMO_TENANT_USER_ID, displayName: VISITOR_DISPLAY_NAME, role: "DEMO" },
   })
 
   // 版本化路线（幂等 upsert，独立于目录与实体生命周期）
